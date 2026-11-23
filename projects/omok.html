@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2D 오목 | 김세현</title>
+  <meta name="description" content="미니맥스와 알파-베타 가지치기로 대전 AI를 만들고, 렌주룰 3-3·4-4 금수 판정을 보완했습니다.">
+  <meta property="og:title" content="2D 오목 | 김세현">
+  <meta property="og:image" content="https://sehyeon1837.github.io/images/omok.png">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="wrap">
+      <a class="brand" href="../index.html">김세현</a>
+      <a href="../index.html#projects">프로젝트</a>
+      <a href="mailto:sehyeon1837@gmail.com">연락</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <header class="project-hero">
+      <div class="media"><img src="../images/omok.png" alt="2D 오목 대전 화면"></div>
+      <div class="label">PROJECT 2025 · BOOTCAMP</div>
+      <h1>2D 오목</h1>
+      <p>Android용 온라인 오목 게임입니다. 멋쟁이사자처럼 Unity 부트캠프 팀 프로젝트로, 대전 AI 구현 및 렌주룰 금수 판정을 보완했습니다.</p>
+      <div class="chips" style="margin:10px 0">
+        <span class="chip">Unity</span><span class="chip">C#</span><span class="chip">Android</span><span class="chip">Node.js</span><span class="chip">MongoDB</span>
+      </div>
+      <div class="buttons">
+        <a class="btn primary" href="https://www.youtube.com/watch?v=qyH-pptNckE">플레이 영상</a>
+      </div>
+    </header>
+
+    <section>
+      <div class="sec-head"><h2>프로젝트 개요</h2></div>
+      <div class="card table-wrap">
+        <table>
+          <tr><th>장르</th><td>2D 보드게임 (오목, 렌주룰)</td></tr>
+          <tr><th>플랫폼</th><td>Android</td></tr>
+          <tr><th>기간</th><td>2025.03 (3주)</td></tr>
+          <tr><th>팀 구성</th><td>7인 (개발 7)</td></tr>
+          <tr><th>소속</th><td>멋쟁이사자처럼 Unity 부트캠프</td></tr>
+          <tr><th>사용 기술</th><td>Client: Unity (C#) · Server: Node.js, JavaScript, MongoDB · 협업: Git</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>담당 범위</h2></div>
+      <div class="card table-wrap">
+        <table>
+          <tr><th>기능</th><th>담당</th><th>확인 위치</th></tr>
+          <tr><td>AI 알고리즘 개발, 응답 시간 최적화</td><td>전담 (100%)</td><td>사례 1, 2<code class="path">MiniMaxAIController.cs<br>AIEvaluator.cs</code></td></tr>
+          <tr><td>렌주룰 (3-3, 4-4 금수)</td><td>공동 (약 50%) · 팀원이 만든 판정을 보완, 3-3·4-4 판정을 주로 수정</td><td>사례 3<code class="path">DoubleThreeCheck.cs<br>DoubleFourCheck.cs</code></td></tr>
+          <tr><td>코드 리뷰와 통합</td><td>공동 (약 25%) · 통합 전 코드 리뷰로 충돌을 미리 해결, 팀 내 코드 리뷰 최다 참여</td><td>—</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- 사례 1 -->
+    <section class="case">
+      <h3>1. 대전 AI: 미니맥스 + 알파-베타 가지치기</h3>
+      <p>AI는 차례마다 아래 순서로 다음 수를 고릅니다. 이길 수 있거나 막아야 하는 자리는 탐색 없이 바로 두고, 나머지 경우에만 4수 앞까지 탐색합니다.</p>
+      <ol class="steps">
+        <li><span><b>즉시 승리</b> · 두면 바로 5목이 되는 자리가 있으면 그곳에 둠</span></li>
+        <li><span><b>즉시 방어</b> · 상대가 다음 수에 5목이 되는 자리가 있으면 막음</span></li>
+        <li><span><b>후보 추리기</b> · 주변에 돌이 있는 빈칸만 한 수 평가 후 점수순 정렬</span></li>
+        <li><span><b>탐색</b> · 미니맥스로 4수 앞까지 탐색, 알파-베타로 불필요한 가지 제거</span></li>
+        <li><span><b>급수 반영</b> · 설정한 급수에 따라 일정 확률로 차선의 수를 둠</span></li>
+      </ol>
+      <pre><code>// 미니맥스 + 알파-베타 (승패 판정 부분 생략)
+private static float DoMinimax(PlayerType[,] board, int depth, bool isMaximizing,
+                               float alpha, float beta, int recentRow, int recentCol)
+{
+    if (depth == 0) return AIEvaluator.EvaluateBoard(board, _AIPlayerType);
+
+    float best = isMaximizing ? float.MinValue : float.MaxValue;
+    foreach (var (row, col, _) in GetValidMoves(board))   // 점수순으로 정렬된 후보
+    {
+        board[row, col] = isMaximizing ? PlayerType.PlayerB : PlayerType.PlayerA;  // 임시로 둠
+        float score = DoMinimax(board, depth - 1, !isMaximizing, alpha, beta, row, col);
+        board[row, col] = PlayerType.None;                                         // 되돌림
+
+        if (isMaximizing) { best = Math.Max(best, score); alpha = Math.Max(alpha, best); }
+        else              { best = Math.Min(best, score); beta  = Math.Min(beta,  best); }
+
+        if (beta &lt;= alpha) break;   // 결과에 영향이 없는 가지는 더 보지 않음
+    }
+    return best;
+}</code></pre>
+      <p><b>판의 평가 기준</b>: 탐색이 끝난 판은 돌이 이어진 개수와 양 끝이 열려 있는지로 점수를 매깁니다. AI의 패턴은 더하고 상대의 패턴은 뺍니다.</p>
+      <div class="card table-wrap">
+        <table>
+          <tr><th>패턴</th><th>점수</th><th>비고</th></tr>
+          <tr><td>5목</td><td>100,000</td><td>승리</td></tr>
+          <tr><td>열린 4 / 한쪽 열린 4</td><td>15,000 / 6,000</td><td>한 칸 띈 패턴(●●□●●)은 90%로 계산</td></tr>
+          <tr><td>열린 3 / 한쪽 열린 3</td><td>3,500 / 500</td><td></td></tr>
+          <tr><td>4-4 · 4-3 · 3-3</td><td>12,000 · 11,000 · 9,000</td><td>한 돌에서 두 방향으로 동시에 생긴 경우 추가 점수</td></tr>
+          <tr><td>위치 보정</td><td>중앙 1.3배 → 가장자리 0.85배</td><td>중앙에 가까울수록 높게</td></tr>
+        </table>
+      </div>
+      <ul>
+        <li><b>공격과 방어를 함께 평가</b>: 후보 칸마다 AI 돌을 놓았을 때(공격)와 상대 돌을 놓았을 때(방어)를 모두 계산합니다. 상대의 열린 3을 막는 수는 같은 공격 수보다 약 2배 높게 평가해, 위험한 수를 먼저 막도록 했습니다.</li>
+        <li><b>급수별 난이도</b>: 18급은 실수 확률 35%, 1급은 1%로 시작합니다. 초반 5수는 실수를 절반으로 줄이고, 좋은 수를 4번 이상 연속으로 두면 조금씩 실수가 늘며, 종반에는 다시 줄어들어 사람과 비슷하게 두도록 했습니다. 급수가 낮을수록 더 나쁜 수를 고릅니다.</li>
+      </ul>
+    </section>
+
+    <!-- 사례 2 -->
+    <section class="case">
+      <h3>2. AI 응답 시간 줄이기</h3>
+      <dl class="psr card">
+        <div><dt>PROBLEM</dt><dd><p>AI가 한 수를 두는 데 오래 걸려 대전 흐름이 끊겼습니다.</p></dd></div>
+        <div><dt>CAUSE</dt><dd><p>미니맥스는 한 수 깊어질 때마다 둘 수 있는 칸을 모두 다시 탐색해, 깊이 4에서는 경우의 수가 크게 늘어납니다.</p></dd></div>
+        <div><dt>SOLUTION</dt><dd>
+          <p><b>① 알파-베타 가지치기</b>: 이미 더 좋은 선택지가 있어 결과에 영향을 주지 않는 가지는 탐색을 중단합니다.</p>
+          <p><b>② 후보 수 줄이기와 정렬</b>: 주변 8칸에 돌이 있는 빈칸만 후보로 삼고, 한 수 평가 점수가 높은 순으로 정렬해 상위 8개만 깊게 탐색합니다. 좋은 수를 먼저 보면 알파-베타로 잘리는 가지가 많아집니다. 후보가 많을 때는 중간 점수의 수 2개를 함께 넣어, 점수표만 따르는 단조로운 수를 피했습니다.</p>
+          <p><b>③ 계산 결과 캐싱</b>: 같은 칸·같은 방향의 돌 개수 계산을 저장해 다시 쓰고, 돌을 둔 자리 반경 4칸의 결과만 지워 다시 계산합니다.</p>
+          <p><b>④ 별도 스레드에서 탐색</b>: Task.Run으로 탐색을 메인 스레드와 분리해, AI가 생각하는 동안에도 화면이 멈추지 않습니다.</p>
+        </dd></div>
+      </dl>
+      <pre><code>allMoves.Sort((a, b) =&gt; b.Item3.CompareTo(a.Item3));  // 한 수 평가 점수가 높은 순
+validMoves.AddRange(allMoves.Take(8));                  // 상위 8개만 깊게 탐색
+
+(int row, int col)? bestMove =
+    await Task.Run(() =&gt; MiniMaxAIController.GetBestMove(board));  // 메인 스레드와 분리</code></pre>
+    </section>
+
+    <!-- 사례 3 -->
+    <section class="case">
+      <h3>3. 렌주룰 3-3·4-4 금수 판정 보완</h3>
+      <p>렌주룰은 먼저 두는 흑이 유리한 오목의 균형을 맞추기 위해, 흑에게만 3-3, 4-4, 장목(6목 이상)을 금지하는 규칙입니다. 팀원이 만든 판정에서 3-3·4-4처럼 두 줄이 겹치는 패턴의 판정을 주로 보완했습니다.</p>
+      <ul>
+        <li><b>판정 시점</b>: 흑 차례가 돌아올 때마다 금수 여부를 검사합니다.</li>
+        <li><b>판정 방법</b>: 검사할 칸에 흑을 임시로 놓고, 4방향마다 앞뒤 5칸씩 총 11칸을 한 줄로 뽑아 패턴을 확인한 뒤 원래대로 되돌립니다. 판 밖은 백돌처럼 막힌 칸으로 처리합니다.</li>
+        <li><b>3-3</b>: 붙은 3(●●●)과 한 칸 띈 3(●●□●)을 모두 보되, 양 끝이 열려 있고 5목까지 이어질 수 있는 3만 열린 3으로 셉니다. 열린 3이 2방향 이상이면 금수입니다.</li>
+        <li><b>4-4</b>: 5목을 만들 수 있는 4가 2방향 이상이면 금수입니다. 여기에 더해, 한 줄 안에서 4가 두 번 생기는 패턴은 방향 개수로는 1개로 세어져 놓치게 되므로 따로 검사합니다.</li>
+      </ul>
+      <pre><code>public bool IsDoubleFour(PlayerType[,] board, int row, int col)
+{
+    return FindDoubleLineFour(board, row, col)        // 서로 다른 두 방향에서 4
+        || FindSingleLineDoubleFour(board, row, col); // 한 줄 안에서 4가 두 번
+}
+
+// 한 줄 쌍사: 방향 개수로는 잡히지 않아 줄 모양으로 직접 확인
+if (patternStr.Contains("●●□●●□●●") || patternStr.Contains("●□●●●□●"))
+    return true;</code></pre>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>회고</h2></div>
+      <ul>
+        <li><b>승패 점수와 평가 점수의 크기 차이</b>: 미니맥스 탐색 중 승리는 100, 패배는 -100으로 반환하도록 했는데, 판 평가 점수는 열린 3 하나만 있어도 3,500이었습니다. 그래서 탐색 중에 실제로 이긴 판이 아직 승부가 나지 않은 판보다 낮게 평가될 수 있었습니다. 탐색 전에 즉시 승리와 방어를 먼저 처리해 영향이 줄어들긴 했지만, 승패 점수는 평가 점수가 낼 수 있는 최댓값보다 크게 잡아야 했습니다.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap"><a href="../index.html">← 이력서로 돌아가기</a></div>
+  </footer>
+</body>
+</html>

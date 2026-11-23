@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>냉장고 던전 | 김세현</title>
+  <meta name="description" content="3D 어드벤처에서 첫 대화 시스템과 엔딩 3종 판정을 만들었습니다.">
+  <meta property="og:title" content="냉장고 던전 | 김세현">
+  <meta property="og:image" content="https://sehyeon1837.github.io/images/fridge-dungeon.png">
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="wrap">
+      <a class="brand" href="../index.html">김세현</a>
+      <a href="../index.html#projects">프로젝트</a>
+      <a href="mailto:sehyeon1837@gmail.com">연락</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <header class="project-hero">
+      <div class="media"><img src="../images/fridge-dungeon.png" alt="냉장고 던전 플레이 화면"></div>
+      <div class="label">PROJECT 2025 · BOOTCAMP</div>
+      <h1>냉장고 던전</h1>
+      <p>던전을 공략해 세계 평화를 지키면서, 직장 생활로 일상의 평화도 지켜야 하는 3D 어드벤처입니다. 멋쟁이사자처럼 Unity 부트캠프 팀 프로젝트로, 처음으로 대화 시스템을 만들었고 엔딩 3종 판정과 출력, 체력·평판·시간 관리, 오디오도 맡았습니다.</p>
+      <div class="chips" style="margin:10px 0">
+        <span class="chip">Unity 2022.3.60f</span><span class="chip">URP</span><span class="chip">C#</span><span class="chip">JSON</span>
+      </div>
+      <div class="buttons">
+        <a class="btn primary" href="https://www.youtube.com/watch?v=Z3bet8NY0UM">플레이 영상</a>
+        <a class="btn" href="https://github.com/Sehyeon1837/Degulleo3D">코드 보기</a>
+      </div>
+    </header>
+
+    <section>
+      <div class="sec-head"><h2>프로젝트 개요</h2></div>
+      <div class="card table-wrap">
+        <table>
+          <tr><th>장르</th><td>3D 어드벤처</td></tr>
+          <tr><th>플랫폼</th><td>PC</td></tr>
+          <tr><th>기간</th><td>2025.04 – 2025.05 (5주)</td></tr>
+          <tr><th>팀 구성</th><td>7인 (개발 7)</td></tr>
+          <tr><th>소속</th><td>멋쟁이사자처럼 Unity 부트캠프</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>담당 범위</h2></div>
+      <div class="card table-wrap">
+        <table>
+          <tr><th>기능</th><th>담당</th><th>확인 위치</th></tr>
+          <tr><td>게임 시스템: 체력·평판·시간 관리, 멀티 엔딩 분기, 오디오</td><td>공동 (약 25%) · 게임 시스템 파트를 팀원과 나눠 맡았고, 왼쪽 기능은 직접 구현</td><td>사례 1 · 플레이 영상</td></tr>
+          <tr><td>대화 시스템</td><td>주 담당 (100%)</td><td>사례 2</td></tr>
+          <tr><td>코드 리뷰와 통합</td><td>참여</td><td>—</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <section class="case">
+      <h3>1. 평판과 날짜로 갈리는 엔딩 3종</h3>
+      <p>두 가지 조건을 지켜야 하는 게임이라, 어느 조건에 실패했는지에 따라 엔딩을 나눴습니다. 팀이 함께 정한 엔딩 조건을 바탕으로 판정 로직과 엔딩별 대화 출력을 구현했습니다.</p>
+      <div class="card table-wrap">
+        <table>
+          <tr><th>조건</th><th>엔딩</th></tr>
+          <tr><td>기한 안에 보스 클리어 + 평판 유지</td><td>해피 엔딩</td></tr>
+          <tr><td>평판 유지 실패</td><td>퇴사 엔딩</td></tr>
+          <tr><td>기한 안에 보스 클리어 실패</td><td>세계 멸망 엔딩</td></tr>
+        </table>
+      </div>
+      <ul>
+        <li><b>판정 시점</b>: 평판 수치가 모두 깎이는 즉시, 또는 기한이 끝나는 즉시 엔딩으로 넘어갑니다.</li>
+        <li><b>출력</b>: 엔딩마다 대화의 시작 id를 다르게 지정해, 같은 대화 시스템으로 엔딩별 대사를 출력합니다.</li>
+      </ul>
+    </section>
+
+    <section class="case">
+      <h3>2. 첫 대화 시스템</h3>
+      <p>JSON 대화 데이터를 불러와 순서대로 출력하는 구조로 만들었습니다. NPC 1명, 단일 흐름 대화입니다.</p>
+      <div class="card flow" role="img" aria-label="대화 시스템 구조도: Dialogue.json을 DialogueMgr가 로드해 시작 id부터 다음 id를 따라 순서를 구성하고, ChatWinCtrl이 큐로 대사를 하나씩 대화창에 출력">
+        <div class="flow-row">
+          <div class="flow-box"><b>Dialogue.json</b><span>노드: id · 대사 · 다음 id</span></div>
+        </div>
+        <div class="flow-arrow">로드</div>
+        <div class="flow-row has-side">
+          <div class="flow-in">
+            <div class="flow-box input"><b>시작 id</b><span>NPC 대화 / 엔딩 3종</span></div>
+            <div class="flow-side">→</div>
+          </div>
+          <div class="flow-box main"><b>DialogueMgr</b><span>시작 id부터 다음 id를 따라<br>대사 순서 구성</span><em class="flow-note">시작 id: NPC 대화 / 엔딩 3종</em></div>
+          <div></div>
+        </div>
+        <div class="flow-arrow">대사 목록 전달</div>
+        <div class="flow-row">
+          <div class="flow-box main"><b>ChatWinCtrl</b><span>큐(Queue)에 담아<br>순서대로 하나씩 꺼내 출력</span></div>
+        </div>
+        <div class="flow-arrow">표시</div>
+        <div class="flow-row">
+          <div class="flow-box"><b>대화창 UI</b><span>최종 표시</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head"><h2>회고</h2></div>
+      <p>노드 id와 다음 id로 대사를 잇는 구조는 이때 만들었지만, 선택지나 조건에 따라 대화를 나눌 수 없었습니다. 그래서 <a href="neon-root.html">네온 루트</a>에서는 선택지·플래그·조건을 넣어 다시 설계했습니다.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap"><a href="../index.html">← 이력서로 돌아가기</a></div>
+  </footer>
+</body>
+</html>
